@@ -1,5 +1,6 @@
-import { setUser } from "./config";
-import { createUser, deleteUsers, getUserByName } from "./lib/db/queries/users";
+import { readConfig, setUser } from "./config";
+import { createUser, deleteUsers, getUserByName, getUsers } from "./lib/db/queries/users";
+import { users } from "./lib/db/schema";
 
 export type CommandHandler = (cmdName: string, ...args: string[]) => Promise<void>;
 export type CommandsRegistry = { [key: string]: CommandHandler };
@@ -38,6 +39,25 @@ export async function handlerDeleteUsers(cmdName:string) : Promise<void> {
     return result ? console.log("All users have been deleted") : console.log("Failed to delete users");
 }
 
+export async function handlerGetUsers(cmdName: string) : Promise<void> {
+    const users = await getUsers();
+    const config = readConfig();
+    if (users.length === 0) {
+        console.log("No users found");
+    }
+    else {
+        
+        users.forEach(user => { 
+            if ((user.name)==(config.currentUserName) ) { 
+                    console.log(`* ${user.name} (current)`);
+            } 
+            else {
+                console.log(`  ${user.name}`);
+            }
+        });
+        }
+    
+}
 export async function registerCommand(registry: CommandsRegistry, cmdName: string, handler: CommandHandler): Promise<void> {
     registry[cmdName] = handler;
 }
