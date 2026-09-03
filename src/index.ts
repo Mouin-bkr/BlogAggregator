@@ -1,5 +1,7 @@
-import { handlerLogin, registerCommand, runCommand, CommandsRegistry, handlerRegister, handlerDeleteUsers, handlerGetUsers } from "./commands";
-import { readConfig } from "./config";
+import { setDefaultResultOrder } from "node:dns";
+import { handlerLogin, registerCommand, runCommand, CommandsRegistry, handlerRegister, handlerDeleteUsers, handlerGetUsers, handlerFetchFeed } from "./commands";
+
+setDefaultResultOrder("ipv4first");
 
 async function main() {
 const commandRegistry: CommandsRegistry = {};
@@ -7,7 +9,8 @@ const commandRegistry: CommandsRegistry = {};
 registerCommand(commandRegistry, "login", handlerLogin);
 registerCommand(commandRegistry, "register", handlerRegister)
 registerCommand(commandRegistry, "reset", handlerDeleteUsers)
-registerCommand(commandRegistry, "users", handlerGetUsers );
+registerCommand(commandRegistry, "users", handlerGetUsers )
+registerCommand(commandRegistry, "agg", handlerFetchFeed )
 
 const cliArgs = process.argv.slice(2);
 if (cliArgs.length < 1) {

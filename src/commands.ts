@@ -1,4 +1,5 @@
 import { readConfig, setUser } from "./config";
+import { fetchFeed, RSSFeed } from "./rss";
 import { createUser, deleteUsers, getUserByName, getUsers } from "./lib/db/queries/users";
 import { users } from "./lib/db/schema";
 
@@ -6,7 +7,7 @@ export type CommandHandler = (cmdName: string, ...args: string[]) => Promise<voi
 export type CommandsRegistry = { [key: string]: CommandHandler };
 
 
-export async function handlerLogin(cmdName: string, ...args: string[]): Promise<void> {
+export async function handlerLogin(...args: string[]): Promise<void> {
     if (args.length < 1) {
         throw new Error("Username is required for login command");
     }
@@ -16,7 +17,7 @@ export async function handlerLogin(cmdName: string, ...args: string[]): Promise<
     setUser(args[0]);
     console.log('User has been set');
 }
-export async function handlerRegister(cmdName: string, ...args: string[]): Promise<void> {
+export async function handlerRegister( ...args: string[]): Promise<void> {
     if (args.length < 1) {
         throw new Error("Username is required for register command");
     }
@@ -34,12 +35,12 @@ export async function handlerRegister(cmdName: string, ...args: string[]): Promi
     
 }
 
-export async function handlerDeleteUsers(cmdName:string) : Promise<void> {
+export async function handlerDeleteUsers() : Promise<void> {
     const result = await deleteUsers();
     return result ? console.log("All users have been deleted") : console.log("Failed to delete users");
 }
 
-export async function handlerGetUsers(cmdName: string) : Promise<void> {
+export async function handlerGetUsers() : Promise<void> {
     const users = await getUsers();
     const config = readConfig();
     if (users.length === 0) {
@@ -52,12 +53,18 @@ export async function handlerGetUsers(cmdName: string) : Promise<void> {
                     console.log(`* ${user.name} (current)`);
             } 
             else {
-                console.log(`  ${user.name}`);
+                console.log(`* ${user.name}`);
             }
         });
         }
     
 }
+export async function handlerFetchFeed(cmdName:string) : Promise<void> {
+    const feed = await fetchFeed("https://www.wagslane.dev/index.xml")
+    const result = JSON.stringify(feed, null, 2)    
+    console.log(result);
+}
+
 export async function registerCommand(registry: CommandsRegistry, cmdName: string, handler: CommandHandler): Promise<void> {
     registry[cmdName] = handler;
 }

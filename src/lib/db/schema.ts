@@ -9,3 +9,4 @@ export const users = pgTable("users", {
     .$onUpdate(() => new Date()),
   name: text("name").notNull().unique(),
 });
+//
