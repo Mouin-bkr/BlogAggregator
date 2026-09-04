@@ -1,5 +1,9 @@
 import { setDefaultResultOrder } from "node:dns";
-import { handlerLogin, registerCommand, runCommand, CommandsRegistry, handlerRegister, handlerDeleteUsers, handlerGetUsers, handlerFetchFeed } from "./commands";
+import { handlerLogin, registerCommand, runCommand,
+    CommandsRegistry, handlerRegister,
+    handlerDeleteUsers,handlerGetUsers,
+    handlerFetchFeed, handlerInsertFeed, 
+    handlerShowAllFeeds} from "./commands";
 
 setDefaultResultOrder("ipv4first");
 
@@ -11,6 +15,9 @@ registerCommand(commandRegistry, "register", handlerRegister)
 registerCommand(commandRegistry, "reset", handlerDeleteUsers)
 registerCommand(commandRegistry, "users", handlerGetUsers )
 registerCommand(commandRegistry, "agg", handlerFetchFeed )
+registerCommand(commandRegistry, "addfeed", handlerInsertFeed)
+registerCommand(commandRegistry, "feeds", handlerShowAllFeeds)
+
 
 const cliArgs = process.argv.slice(2);
 if (cliArgs.length < 1) {
