@@ -15,6 +15,13 @@
       "when": 1788421384509,
       "tag": "0001_cold_vision",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788706042665,
+      "tag": "0002_green_salo",
+      "breakpoints": true
     }
   ]
 }

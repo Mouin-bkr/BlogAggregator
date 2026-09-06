@@ -1,10 +1,8 @@
 import { setDefaultResultOrder } from "node:dns";
-import { handlerLogin, registerCommand, runCommand,
-    CommandsRegistry, handlerRegister,
-    handlerDeleteUsers,handlerGetUsers,
-    handlerFetchFeed, handlerInsertFeed, 
-    handlerShowAllFeeds} from "./commands";
-
+import { CommandsRegistry, registerCommand, runCommand } from "./commands/commands";
+import { handlerDeleteUsers, handlerGetUsers, handlerLogin, handlerRegister } from "./commands/users";
+import { handlerFetchFeed, handlerInsertFeed, handlerShowAllFeeds } from "./commands/feeds";
+import { handlerFeedUserFollow, handlerFollow } from "./commands/feed-follows";
 setDefaultResultOrder("ipv4first");
 
 async function main() {
@@ -17,6 +15,8 @@ registerCommand(commandRegistry, "users", handlerGetUsers )
 registerCommand(commandRegistry, "agg", handlerFetchFeed )
 registerCommand(commandRegistry, "addfeed", handlerInsertFeed)
 registerCommand(commandRegistry, "feeds", handlerShowAllFeeds)
+registerCommand(commandRegistry, "follow" ,handlerFollow)
+registerCommand(commandRegistry, "following", handlerFeedUserFollow)
 
 
 const cliArgs = process.argv.slice(2);
