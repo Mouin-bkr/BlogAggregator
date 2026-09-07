@@ -1,22 +1,15 @@
-import { readConfig } from "src/config";
 import { addFeed, createFeedFollow, getFeedsWithName } from "src/lib/db/queries/feed"
-import { getUserByName } from "src/lib/db/queries/users";
 import { fetchFeed } from "src/rss";
+import { User } from "src/lib/db/schema";
 
 
 export async function handlerFetchFeed(cmdName:string) : Promise<void> {
     const feed = await fetchFeed("https://www.wagslane.dev/index.xml")
-    const result = JSON.stringify(feed, null, 2)    
+    const result = JSON.stringify(feed, null, 2)
     console.log(result);
 };
 
-export async function handlerInsertFeed(cmdName:string, ...args: string[]): Promise<void> {
-   const config = readConfig();
-   const user = await getUserByName(config.currentUserName);
-
-    if (!user) {
-  throw new Error(`User ${config.currentUserName} not found`);
-}
+export async function handlerInsertFeed(cmdName:string, user: User, ...args: string[]): Promise<void> {
     if(args.length !== 2) {
         throw new Error("missing args")
     }
