@@ -22,6 +22,13 @@
       "when": 1788706042665,
       "tag": "0002_green_salo",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1788873440333,
+      "tag": "0003_skinny_patch",
+      "breakpoints": true
     }
   ]
 }

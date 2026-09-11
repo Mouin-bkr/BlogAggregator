@@ -1,12 +1,46 @@
-import { addFeed, createFeedFollow, getFeedsWithName } from "src/lib/db/queries/feed"
-import { fetchFeed } from "src/rss";
+import { addFeed, createFeedFollow, getFeedsWithName, scrapeFeeds } from "src/lib/db/queries/feed"
 import { User } from "src/lib/db/schema";
 
+function parseDuration(durationStr: string): number {
+    const regex = /^(\d+)(ms|s|m|h)$/;
+    const match = durationStr.match(regex);
+    if(match === null){
+        throw new Error("match can't be null")
+    }
+    const [, value, unit] = match;
+    const numValue = Number(value);
+    switch(unit) {
+        case "ms":
+            return numValue;
+        case "s":
+            return numValue * 1000;
+        case "m":
+            return numValue * 60 * 1000;
+        case "h":
+            return numValue * 60 * 60 * 1000;
+        default:
+            throw new Error("Invalid time unit");
+    }
+}
 
-export async function handlerFetchFeed(cmdName:string) : Promise<void> {
-    const feed = await fetchFeed("https://www.wagslane.dev/index.xml")
-    const result = JSON.stringify(feed, null, 2)
-    console.log(result);
+export async function handlerFetchFeed(cmdName:string,time_between_reqs: string) : Promise<void> {
+   
+    const ms = parseDuration(time_between_reqs);
+    console.log(`Collecting feeds every ${ms}`)
+    scrapeFeeds().catch((err) => console.error(err))
+
+    const interval = setInterval(() => {
+    scrapeFeeds().catch((err) => console.error(err))
+    }, ms);
+
+await new Promise<void>((resolve) => {
+  process.on("SIGINT", () => {
+    console.log("Shutting down feed aggregator...");
+    clearInterval(interval);
+    resolve();
+  });
+});
+
 };
 
 export async function handlerInsertFeed(cmdName:string, user: User, ...args: string[]): Promise<void> {

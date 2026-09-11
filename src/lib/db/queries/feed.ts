@@ -1,6 +1,7 @@
-import { and, eq } from "drizzle-orm";
+import { and, asc, eq, sql } from "drizzle-orm";
 import { db } from "..";
 import { feedFollows, feeds, users } from "../schema";
+import { fetchFeed } from "src/rss";
 
 export async function addFeed(name:string, url:string, userId:string){
   const [result] = await db.insert(feeds).values({name,url,userId}).returning();
@@ -15,7 +16,7 @@ export async function getFeedsWithName() {
     .innerJoin(users,eq(feeds.userId,users.id));
 
   return result
-}
+};
 
 export async function getFeedByUrl(url: string) {
   const [feed] = await db.select().from(feeds).where(eq(feeds.url, url));
@@ -66,3 +67,32 @@ export async function getFeedFollowsForUser(userId : string){
 
     return result;
 }
+
+export async function markFeedFetched (feedId: string){
+  const result = await db.update(feeds)
+  .set({last_fetched_at: new Date(),
+         updatedAt: new Date() })
+  .where(eq(feeds.id, feedId)).returning();
+  return result;
+};
+
+export async function getNextFeedToFetch(){
+  const [result] = await db.select().from(feeds).orderBy(sql`${feeds.last_fetched_at} asc nulls first`).limit(1);  
+  return result;
+
+};
+
+export async function scrapeFeeds(){
+  const feed = await getNextFeedToFetch() ;
+  if (!feed){
+    throw new Error("feed not found");
+  }
+  const rss= await fetchFeed(feed.url)
+  await markFeedFetched(feed.id)
+
+  for (const rssItem of rss.channel.item ){
+    console.log( rssItem.title)
+    console.log( rssItem.description)
+    console.log( rssItem.link)
+  }
+} ;
