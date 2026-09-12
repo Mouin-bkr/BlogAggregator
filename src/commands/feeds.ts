@@ -1,4 +1,4 @@
-import { addFeed, createFeedFollow, getFeedsWithName, scrapeFeeds } from "src/lib/db/queries/feed"
+import { addFeed, createFeedFollow, getFeedsWithName, orderPosts, scrapeFeeds } from "src/lib/db/queries/feed"
 import { User } from "src/lib/db/schema";
 
 function parseDuration(durationStr: string): number {
@@ -62,4 +62,8 @@ export async function handlerShowAllFeeds(cmdName:string): Promise<void>{
     for( const res of result){
         console.log(`feed name : ${res.feedName}\nfeed url : ${res.feedUrl}\nuser name : ${res.userName}`)
     }
+}
+export async function handlerPostsForUser(cmdName:string,limit:number):Promise <void>{
+    const result=orderPosts(limit);
+    console.log(result)
 }

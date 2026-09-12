@@ -1,6 +1,6 @@
 import { and, asc, eq, sql } from "drizzle-orm";
 import { db } from "..";
-import { feedFollows, feeds, users } from "../schema";
+import { feedFollows, feeds, Post, posts, users } from "../schema";
 import { fetchFeed } from "src/rss";
 
 export async function addFeed(name:string, url:string, userId:string){
@@ -87,12 +87,21 @@ export async function scrapeFeeds(){
   if (!feed){
     throw new Error("feed not found");
   }
+  console.log("feed found and fetching !")
   const rss= await fetchFeed(feed.url)
   await markFeedFetched(feed.id)
 
   for (const rssItem of rss.channel.item ){
-    console.log( rssItem.title)
-    console.log( rssItem.description)
-    console.log( rssItem.link)
+    createPost(feed)
   }
 } ;
+
+export async function createPost(post : Post){
+  const result = db.insert(posts).values(post).returning;
+  return result ;
+}
+
+export async function orderPosts(limit : number){
+  const result = await db.select().from(posts).orderBy(sql`${posts.published_at} desc`);
+  return result;
+}
