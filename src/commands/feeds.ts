@@ -1,4 +1,4 @@
-import { addFeed, createFeedFollow, getFeedsWithName, orderPosts, scrapeFeeds } from "src/lib/db/queries/feed"
+import { addFeed, createFeedFollow, getFeedsWithName, getPostsForUser, scrapeFeeds } from "src/lib/db/queries/feed"
 import { User } from "src/lib/db/schema";
 
 function parseDuration(durationStr: string): number {
@@ -63,7 +63,29 @@ export async function handlerShowAllFeeds(cmdName:string): Promise<void>{
         console.log(`feed name : ${res.feedName}\nfeed url : ${res.feedUrl}\nuser name : ${res.userName}`)
     }
 }
-export async function handlerPostsForUser(cmdName:string,limit:number):Promise <void>{
-    const result=orderPosts(limit);
-    console.log(result)
+export async function handlerPostsForUser(cmdName: string, user: User, limitStr?: string): Promise<void> {
+    let limit = 2;
+    if (limitStr !== undefined) {
+        limit = Number(limitStr);
+        if (!Number.isInteger(limit) || limit <= 0) {
+            throw new Error(`limit must be a positive integer, got "${limitStr}"`);
+        }
+    }
+
+    const posts = await getPostsForUser(user.id, limit);
+    if (posts.length === 0) {
+        console.log("No posts found. Are you following any feeds?");
+        return;
+    }
+
+    for (const post of posts) {
+        console.log(`* ${post.title}`);
+        console.log(`  Feed:      ${post.feedName}`);
+        console.log(`  Published: ${post.publishedAt ?? "unknown"}`);
+        console.log(`  URL:       ${post.url}`);
+        if (post.description) {
+            console.log(`  ${post.description}`);
+        }
+        console.log("");
+    }
 }

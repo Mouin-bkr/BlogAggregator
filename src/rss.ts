@@ -16,6 +16,21 @@ export type RSSItem = {
   pubDate: string;
 };
 
+export function parsePubDate(pubDate: string): Date | null {
+  const direct = new Date(pubDate);
+  if (!isNaN(direct.getTime())) {
+    return direct;
+  }
+
+  const withoutWeekday = pubDate.replace(/^[A-Za-z]+,\s*/, "");
+  const fallback = new Date(withoutWeekday);
+  if (!isNaN(fallback.getTime())) {
+    return fallback;
+  }
+
+  return null;
+}
+
 export async function fetchFeed(feedURL: string) {
   const res = await fetch(feedURL, {
     headers: {
